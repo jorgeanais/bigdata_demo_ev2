@@ -122,7 +122,7 @@ def main():
             response.raise_for_status()
 
             features = response.json().get("geojson", {}).get("features", [])
-            capture_ts = pd.Timestamp.utcnow()
+            capture_ts = pd.Timestamp.now('UTC')
 
             for feature in features:
                 props = feature.get("properties", {})
