@@ -22,10 +22,23 @@ Demostración de como utilizar GC (Preparación Evaluación 2)
    ```bash
    pip install -r requirements.txt
    ```
-4. Ejecuta el recolector de datos:
-   ```bash
-   python resources/bus_data_collector.py
-   ```
+
+### Descarga de Datos
+
+Debido a que los datos de prueba son muy grandes para alojarlos directamente en GitHub, hemos preparado un script para descargarlos desde Dropbox.
+
+Ejecuta el siguiente comando para descargar el archivo Parquet (`buses_2026-05-08.parquet`) dentro de la carpeta `data/`:
+```bash
+python resources/download_data.py
+```
+*(Alternativa: Puedes descargar el archivo manualmente [desde este enlace](https://www.dropbox.com/scl/fi/qn1g0s829dol4zu6p5gfh/buses_2026-05-08.parquet?rlkey=1q64fcvqrx6bkbzypqh0ywnro&st=rtfbkfzt&dl=0) y guardarlo en la carpeta `data/` con el nombre `buses_2026-05-08.parquet`)*
+
+### (Opcional) Recolectar tus propios datos
+
+Si deseas recolectar nuevos datos en tiempo real, puedes ejecutar el recolector de datos:
+```bash
+python resources/bus_data_collector.py
+```
 
 ## Resultados esperados
 
