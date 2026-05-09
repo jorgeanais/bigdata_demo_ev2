@@ -1,3 +1,7 @@
 pandas
 requests
 pyarrow
+matplotlib
+seaborn
+contextily
+pyproj
