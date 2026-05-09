@@ -31,7 +31,7 @@ Demostración de como utilizar GC (Preparación Evaluación 2)
 
 1. **Datos Recolectados**: El script `bus_data_collector.py` generará un archivo Parquet (ej. `data/buses_YYYY-MM-DD.parquet`) que almacena de forma particionada la información de coordenadas y velocidades de los buses.
 2. **Exploración de Datos (EDA)**: Se incluye un cuaderno interactivo (`explore_buses_data.ipynb`) que analiza la distribución de velocidades, rutas y operadores.
-3. **Scripts de Visualización Espacial**: En la carpeta `resources/` se incluyeron scripts (`plot_trajectories.py`, `visualize_traffic.py`) que permiten proyectar coordenadas GPS en mapas reales.
+3. **Scripts de Visualización Espacial y Animación**: En la carpeta `resources/` se incluyeron scripts (`plot_trajectories.py`, `visualize_traffic.py`, `animate_buses.py`) que permiten proyectar coordenadas GPS en mapas reales y generar animaciones temporales del movimiento de los buses.
 
 ## Visualizaciones
 
@@ -45,7 +45,7 @@ Este mapa agrupa los registros GPS en hexágonos para visualizar las zonas geogr
 
 ![Zonas de Congestión Hexbin](images/traffic_hexbin_map.png)
 
-### 3. Mapa de Densidad de Tráfico Lento (KDE)
-Un mapa de calor (Kernel Density Estimation) que señala la densidad geográfica de registros donde la velocidad de los buses fue inferior a 15 km/h.
+### 3. Animación de Movimiento de Buses
+Animación temporal del recorrido de los buses a lo largo del mapa, diferenciados por color según su operador.
 
-![Mapa de Densidad](images/traffic_density_heatmap.png)
+![Animación de Buses](resources/bus_animation.gif)
