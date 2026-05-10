@@ -27,11 +27,13 @@ Demostración de como utilizar GC (Preparación Evaluación 2)
 
 Debido a que los datos de prueba son muy grandes para alojarlos directamente en GitHub, hemos preparado un script para descargarlos desde Dropbox.
 
-Ejecuta el siguiente comando para descargar el archivo Parquet (`buses_2026-05-08.parquet`) dentro de la carpeta `data/`:
+Ejecuta el siguiente comando para descargar los archivos Parquet de los días 08 y 09 de Mayo dentro de la carpeta `data/`:
 ```bash
 python resources/download_data.py
 ```
-*(Alternativa: Puedes descargar el archivo manualmente [desde este enlace](https://www.dropbox.com/scl/fi/qn1g0s829dol4zu6p5gfh/buses_2026-05-08.parquet?rlkey=1q64fcvqrx6bkbzypqh0ywnro&st=rtfbkfzt&dl=0) y guardarlo en la carpeta `data/` con el nombre `buses_2026-05-08.parquet`)*
+*(Alternativa: Puedes descargar los archivos manualmente y guardarlos en la carpeta `data/` con sus nombres respectivos:*
+* *[Datos del 2026-05-08](https://www.dropbox.com/scl/fi/qn1g0s829dol4zu6p5gfh/buses_2026-05-08.parquet?rlkey=1q64fcvqrx6bkbzypqh0ywnro&st=rtfbkfzt&dl=0)*
+* *[Datos del 2026-05-09](https://www.dropbox.com/scl/fi/wpebtr0gxkzulfv2xlqd0/buses_2026-05-09.parquet?rlkey=p4vnwwrhs5pwt0eovk4f0ebpe&st=19sjym4s&dl=0))*
 
 ### (Opcional) Recolectar tus propios datos
 

@@ -26,7 +26,17 @@ def download_file_from_dropbox(url, destination):
         print(f"Error al descargar el archivo: {e}")
 
 if __name__ == "__main__":
-    DROPBOX_URL = "https://www.dropbox.com/scl/fi/qn1g0s829dol4zu6p5gfh/buses_2026-05-08.parquet?rlkey=1q64fcvqrx6bkbzypqh0ywnro&st=rtfbkfzt&dl=0"
-    DESTINATION_FILE = "data/buses_2026-05-08.parquet"
+    FILES_TO_DOWNLOAD = [
+        {
+            "url": "https://www.dropbox.com/scl/fi/qn1g0s829dol4zu6p5gfh/buses_2026-05-08.parquet?rlkey=1q64fcvqrx6bkbzypqh0ywnro&st=rtfbkfzt&dl=0",
+            "destination": "data/buses_2026-05-08.parquet"
+        },
+        {
+            "url": "https://www.dropbox.com/scl/fi/wpebtr0gxkzulfv2xlqd0/buses_2026-05-09.parquet?rlkey=p4vnwwrhs5pwt0eovk4f0ebpe&st=19sjym4s&dl=0",
+            "destination": "data/buses_2026-05-09.parquet"
+        }
+    ]
     
-    download_file_from_dropbox(DROPBOX_URL, DESTINATION_FILE)
+    for file_info in FILES_TO_DOWNLOAD:
+        download_file_from_dropbox(file_info["url"], file_info["destination"])
+        print("-" * 40)
