@@ -9,6 +9,8 @@ Demostración de como utilizar GC (Preparación Evaluación 2)
 
 ## Instrucciones
 
+> **Nota:** Las instrucciones detalladas para realizar el laboratorio paso a paso se encuentran disponibles en formato PDF o Word dentro de la carpeta `instrucciones/`.
+
 ### Configuración del Entorno Python
 
 1. Crea un entorno virtual:
@@ -43,7 +45,7 @@ Si deseas recolectar nuevos datos en tiempo real, puedes ejecutar el recolector 
 python resources/bus_data_collector.py
 ```
 
-## Resultados esperados
+## Descripción
 
 1. **Datos Recolectados**: El script `bus_data_collector.py` generará un archivo Parquet (ej. `data/buses_YYYY-MM-DD.parquet`) que almacena de forma particionada la información de coordenadas y velocidades de los buses.
 2. **Exploración de Datos (EDA)**: Se incluye un cuaderno interactivo (`explore_buses_data.ipynb`) que analiza la distribución de velocidades, rutas y operadores.
