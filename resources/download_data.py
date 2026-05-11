@@ -34,6 +34,10 @@ if __name__ == "__main__":
         {
             "url": "https://www.dropbox.com/scl/fi/wpebtr0gxkzulfv2xlqd0/buses_2026-05-09.parquet?rlkey=p4vnwwrhs5pwt0eovk4f0ebpe&st=19sjym4s&dl=0",
             "destination": "data/buses_2026-05-09.parquet"
+        },
+        {
+            "url": "https://www.dropbox.com/scl/fi/jnqofxndeesqx2v1c7cua/buses_2026-05-10.parquet?rlkey=lt9ycse4o3i0hsqbxz8acqrnn&st=wbgoe6ty&dl=0",
+            "destination": "data/buses_2026-05-10.parquet"
         }
     ]
     
