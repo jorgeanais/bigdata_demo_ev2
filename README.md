@@ -7,6 +7,23 @@ Demostración de como utilizar GC (Preparación Evaluación 2)
 
 ## Contexto
 
+**Datos y servicios - Aplicaciones de predicción y planificación**
+
+El Directorio de Transporte Público Metropolitano ha dispuesto un conjunto de datos y servicios para que puedan ser utilizados para la construcción de aplicaciones, estudios y análisis de información, entre otros.
+
+A continuación se presenta una breve descripción de la información disponible:
+
+* **Web Service de Posicionamiento:** 
+  Información sobre el posicionamiento de la flota completa de buses del sistema de transporte público de Santiago. Esta información se actualiza cada 1 minuto.
+  *(Ejemplo para el web service de posicionamiento, Diccionario de servicios para el webservice de posicionamiento)*
+
+* **Web Service de Alertas:** 
+  Información de las alertas operacionales generadas en el sistema de transporte.
+  *(Ejemplo para el web service de alertas)*
+
+* **Portal de datos abiertos:** 
+  Repositorio de acceso público de datos que podrán ser utilizados, entre otros fines, para la construcción de aplicaciones o análisis de información.
+
 ## Instrucciones
 
 > **Nota:** Las instrucciones detalladas para realizar el laboratorio paso a paso se encuentran disponibles en formato PDF o Word dentro de la carpeta `instrucciones/`.
