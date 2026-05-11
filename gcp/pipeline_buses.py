@@ -60,15 +60,26 @@ class TransformarRegistro(beam.DoFn):
         ahora_utc = datetime.now(timezone.utc)
         motivos = []
 
-        # --- Parsear timestamp_gps (viene como string) ---
+        # --- Parsear timestamp_gps ---
+        # Soporta formatos: '2026-05-08T20:41:49+0000', '2026-05-08 20:41:49', ISO 8601
         ts_gps = None
         try:
             raw = row.get("timestamp_gps", "")
-            if isinstance(raw, str):
-                ts_gps = datetime.strptime(raw, "%Y-%m-%d %H:%M:%S")
-                ts_gps = ts_gps.replace(tzinfo=timezone.utc)
-        except Exception:
-            motivos.append("timestamp_gps_invalido")
+            if raw is None or raw == "":
+                motivos.append("timestamp_gps_nulo")
+            elif isinstance(raw, str):
+                raw_clean = raw.replace("+0000", "+00:00").replace("Z", "+00:00")
+                try:
+                    ts_gps = datetime.fromisoformat(raw_clean)
+                    if ts_gps.tzinfo is None:
+                        ts_gps = ts_gps.replace(tzinfo=timezone.utc)
+                except ValueError:
+                    ts_gps = datetime.strptime(raw[:19], "%Y-%m-%dT%H:%M:%S")
+                    ts_gps = ts_gps.replace(tzinfo=timezone.utc)
+            elif hasattr(raw, "tzinfo"):
+                ts_gps = raw if raw.tzinfo else raw.replace(tzinfo=timezone.utc)
+        except Exception as e:
+            motivos.append(f"timestamp_gps_invalido({e})")
 
         # --- timestamp_captura ---
         ts_cap = row.get("timestamp_captura")
@@ -193,14 +204,14 @@ def registrar_log(
 
 
 # ---------------------------------------------------------------------------
-# Función principal — construye y ejecuta el pipeline Beam
+# Función principal — lee en batches y ejecuta el pipeline Beam
 # ---------------------------------------------------------------------------
 
 
 def ejecutar_pipeline(project_id, bucket, archivo_gcs, region, temp_dir):
     """
-    Lee el Parquet desde GCS usando PyArrow (fuera del grafo Beam),
-    convierte a lista de dicts y lanza el pipeline de transformación.
+    Lee el Parquet en batches de 50.000 filas para no saturar la RAM
+    de Cloud Shell. Cada batch se procesa con un pipeline Beam independiente.
     """
     archivo_nombre = os.path.basename(archivo_gcs)
     fecha_str = archivo_nombre.replace("buses_", "").replace(".parquet", "")
@@ -213,24 +224,12 @@ def ejecutar_pipeline(project_id, bucket, archivo_gcs, region, temp_dir):
     inicio = datetime.now(timezone.utc)
     log.info(f"[START] Procesando {archivo_nombre}")
 
-    # --- Leer Parquet con PyArrow ---
+    # --- Abrir Parquet como stream de batches (no carga todo en RAM) ---
     gcs_fs = pafs.GcsFileSystem()
     ruta_gcs = archivo_gcs.replace("gs://", "")
-    tabla_pa = pq.read_table(ruta_gcs, filesystem=gcs_fs)
-    registros = tabla_pa.to_pylist()  # lista de dicts
-    log.info(f"Registros leídos del Parquet: {len(registros)}")
+    pf = pq.ParquetFile(ruta_gcs, filesystem=gcs_fs)
 
-    # --- Opciones Dataflow ---
-    opts = PipelineOptions(
-        [
-            f"--project={project_id}",
-            f"--region={region}",
-            f"--temp_location={temp_dir}",
-            "--runner=DataflowRunner",
-            "--job_name=buses-etl-" + fecha_str,
-            "--save_main_session",
-        ]
-    )
+    BATCH_SIZE = 50_000  # filas por batch — ajustar si hay OOM
 
     schema_validos = {
         "fields": [
@@ -254,7 +253,6 @@ def ejecutar_pipeline(project_id, bucket, archivo_gcs, region, temp_dir):
             {"name": "procesado_en", "type": "TIMESTAMP"},
         ]
     }
-
     schema_invalidos = {
         "fields": [
             {"name": "patente", "type": "STRING"},
@@ -269,39 +267,48 @@ def ejecutar_pipeline(project_id, bucket, archivo_gcs, region, temp_dir):
         ]
     }
 
+    opts = PipelineOptions(
+        [
+            f"--project={project_id}",
+            f"--temp_location={temp_dir}",
+            "--runner=DirectRunner",
+            "--save_main_session",
+        ]
+    )
+
     filas_ok = 0
     filas_ko = 0
     error_msg = None
+    estado = "SUCCESS"
+    batch_num = 0
 
     try:
-        with beam.Pipeline(options=opts) as p:
-            resultados = (
-                p
-                | "Crear PCollection" >> beam.Create(registros)
-                | "Transformar"
-                >> beam.ParDo(TransformarRegistro(archivo_nombre)).with_outputs(
-                    TransformarRegistro.OUTPUT_INVALIDO, main="validos"
+        for batch in pf.iter_batches(batch_size=BATCH_SIZE):
+            batch_num += 1
+            registros = batch.to_pylist()
+            log.info(f"  Batch {batch_num}: {len(registros)} registros")
+
+            with beam.Pipeline(options=opts) as p:
+                resultados = (
+                    p
+                    | "Crear" >> beam.Create(registros)
+                    | "Transformar"
+                    >> beam.ParDo(TransformarRegistro(archivo_nombre)).with_outputs(
+                        TransformarRegistro.OUTPUT_INVALIDO, main="validos"
+                    )
                 )
-            )
-
-            # Escribir válidos en buses_dw.bus_positions
-            resultados.validos | "Escribir válidos" >> WriteToBigQuery(
-                table=f"{project_id}:buses_dw.bus_positions",
-                schema=schema_validos,
-                write_disposition=BigQueryDisposition.WRITE_APPEND,
-                create_disposition=BigQueryDisposition.CREATE_NEVER,
-            )
-
-            # Escribir inválidos en buses_control.registros_invalidos
-            resultados.invalido | "Escribir inválidos" >> WriteToBigQuery(
-                table=f"{project_id}:buses_control.registros_invalidos",
-                schema=schema_invalidos,
-                write_disposition=BigQueryDisposition.WRITE_APPEND,
-                create_disposition=BigQueryDisposition.CREATE_NEVER,
-            )
-
-        estado = "SUCCESS"
-        log.info(f"[OK] Pipeline completado para {archivo_nombre}")
+                resultados.validos | "Escribir validos" >> WriteToBigQuery(
+                    table=f"{project_id}:buses_dw.bus_positions",
+                    schema=schema_validos,
+                    write_disposition=BigQueryDisposition.WRITE_APPEND,
+                    create_disposition=BigQueryDisposition.CREATE_NEVER,
+                )
+                resultados.invalido | "Escribir invalidos" >> WriteToBigQuery(
+                    table=f"{project_id}:buses_control.registros_invalidos",
+                    schema=schema_invalidos,
+                    write_disposition=BigQueryDisposition.WRITE_APPEND,
+                    create_disposition=BigQueryDisposition.CREATE_NEVER,
+                )
 
     except Exception as e:
         estado = "FAILED"
@@ -320,6 +327,7 @@ def ejecutar_pipeline(project_id, bucket, archivo_gcs, region, temp_dir):
         fin,
         error_msg,
     )
+    log.info(f"[DONE] {archivo_nombre} — {batch_num} batches procesados")
 
 
 # ---------------------------------------------------------------------------
