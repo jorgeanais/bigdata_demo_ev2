@@ -78,7 +78,7 @@ python resources/download_data.py
 
 ### 3. Recolección de Datos en Tiempo Real
 
-Si deseas extraer nueva data en tiempo real desde el servicio de posicionamiento, puedes ejecutar el recolector de datos:
+Si deseas extraer nuevos datos en tiempo real desde el servicio de posicionamiento, puedes ejecutar el recolector de datos:
 
 ```bash
 python resources/bus_data_collector.py
