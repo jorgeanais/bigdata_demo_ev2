@@ -32,7 +32,7 @@ A continuación se presenta una breve descripción de la información disponible
 
 > **Nota Importante:** Las instrucciones detalladas para realizar el laboratorio paso a paso se encuentran disponibles en formato PDF y Word dentro de la carpeta `instrucciones/`.
 
-## Instrucciones para generar tu propio conjunto de datos
+## Instrucciones para generar tu propio conjunto de datos (Opcional)
 
 Adicionalmente, en este repositorio se incluye el código para colectar tu propio conjunto de datos. Esto no es necesario para desarrollar el laboratorio indicado anteriormente. Los scripts involucrados para la recolección de datos son los siguientes:
 
@@ -76,7 +76,7 @@ python resources/download_data.py
 * *[Datos del 2026-05-09](https://www.dropbox.com/scl/fi/wpebtr0gxkzulfv2xlqd0/buses_2026-05-09.parquet?rlkey=p4vnwwrhs5pwt0eovk4f0ebpe&st=19sjym4s&dl=0)*
 * *[Datos del 2026-05-10](https://www.dropbox.com/scl/fi/jnqofxndeesqx2v1c7cua/buses_2026-05-10.parquet?rlkey=lt9ycse4o3i0hsqbxz8acqrnn&st=wbgoe6ty&dl=0)*
 
-### 3. (Opcional) Recolección de Datos en Tiempo Real
+### 3. Recolección de Datos en Tiempo Real
 
 Si deseas extraer nueva data en tiempo real desde el servicio de posicionamiento, puedes ejecutar el recolector de datos:
 
