@@ -25,12 +25,14 @@ import pandas as pd
 import requests
 
 # ── Configuration ────────────────────────────────────────────────────────────
-API_URL             = "https://velocidades.seguimos.cl/?all-buses-data=1"
-CAPTURE_INTERVAL_SEC = 60        # seconds between captures
-TOTAL_HOURS          = 240       # total run time
-FLUSH_EVERY          = 10        # write to disk every N successful captures
-OUTPUT_DIR           = "data"    # folder for Parquet files
-REQUEST_TIMEOUT_SEC  = 20        # HTTP timeout
+# Todos los valores pueden sobreescribirse con variables de entorno (útil para Docker),
+# manteniendo los mismos defaults que antes si no se define nada.
+API_URL              = os.getenv("API_URL", "https://velocidades.seguimos.cl/?all-buses-data=1")
+CAPTURE_INTERVAL_SEC = int(os.getenv("CAPTURE_INTERVAL_SEC", 60))   # seconds between captures
+TOTAL_HOURS          = int(os.getenv("TOTAL_HOURS", 240))           # run time per ciclo interno
+FLUSH_EVERY          = int(os.getenv("FLUSH_EVERY", 10))            # write to disk every N successful captures
+OUTPUT_DIR           = os.getenv("OUTPUT_DIR", "data")              # folder for Parquet files
+REQUEST_TIMEOUT_SEC  = int(os.getenv("REQUEST_TIMEOUT_SEC", 20))    # HTTP timeout
 # ─────────────────────────────────────────────────────────────────────────────
 
 TOTAL_CAPTURES = int(TOTAL_HOURS * 3600 / CAPTURE_INTERVAL_SEC)
@@ -166,4 +168,8 @@ def main():
 
 
 if __name__ == "__main__":
-    main()
+    # Corre en bucle infinito: cada ciclo interno dura TOTAL_HOURS horas y al terminar
+    # simplemente empieza un ciclo nuevo. Como flush_buffer() siempre hace append a los
+    # Parquet existentes, esto es seguro y permite que el contenedor corra "para siempre".
+    while True:
+        main()
