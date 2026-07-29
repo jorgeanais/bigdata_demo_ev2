@@ -1,0 +1,15 @@
+.git
+.gitignore
+venv/
+env/
+.venv/
+__pycache__/
+*.pyc
+data/
+images/
+instrucciones/
+gcp/
+resources/*.ipynb
+resources/*.gif
+resources/*.mp4
+*.md

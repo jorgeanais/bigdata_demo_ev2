@@ -1,0 +1,17 @@
+services:
+  bus-collector:
+    build:
+      context: .
+      dockerfile: docker/Dockerfile
+    image: bus-data-collector:latest
+    container_name: bus-data-collector
+    restart: unless-stopped        # se reinicia solo si el server se reinicia o si el contenedor muere
+    env_file:
+      - .env                       # opcional: crea este archivo a partir de .env.example para ajustar parámetros
+    volumes:
+      - ./data:/app/data           # los .parquet quedan en el host, sobreviven a recreaciones del contenedor
+    logging:
+      driver: json-file
+      options:
+        max-size: "10m"            # evita llenar la SD de la Raspberry Pi con logs
+        max-file: "3"
