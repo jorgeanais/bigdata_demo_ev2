@@ -30,7 +30,34 @@ A continuación se presenta una breve descripción de la información disponible
 
 ## Instrucciones de Laboratorio
 
-> **Nota Importante:** Las instrucciones detalladas para realizar el laboratorio paso a paso se encuentran disponibles en formato PDF y Word dentro de la carpeta `instrucciones/`.
+> [!IMPORTANT]  
+> Las instrucciones detalladas para realizar el laboratorio paso a paso se encuentran disponibles en formato PDF y Word dentro de la carpeta `instrucciones/`.
+
+¡Sigue las instrucciones ahí presentadas!
+
+## Visualizaciones Destacadas
+
+### 1. Trayectorias de Buses por Operador
+
+Muestra el trazado de los recorridos coloreados según la empresa operadora. Filtra coordenadas inválidas y utiliza proyección Web Mercator sobre un mapa base de OpenStreetMap.
+
+![Trayectorias de Buses](images/bus_trajectories.png)
+
+### 2. Zonas de Congestión (Hexbin Map)
+
+Agrupa los registros GPS en polígonos hexagonales para identificar visualmente las áreas geográficas con menor velocidad promedio de circulación.
+
+![Zonas de Congestión Hexbin](images/traffic_hexbin_map.png)
+
+### 3. Animación de Flota
+
+Animación temporal (timelapse) del recorrido de los buses sobre el mapa, permitiendo observar la dinámica del transporte a lo largo del tiempo.
+
+![Animación de Buses](resources/bus_animation.gif)
+
+---
+
+
 
 ## Instrucciones para generar tu propio conjunto de datos (Opcional)
 
@@ -52,8 +79,10 @@ Para aislar las dependencias del proyecto, se recomienda utilizar un entorno vir
    ```
 
 2. Activa el entorno virtual:
+
    * En Linux/macOS: `source venv/bin/activate`
    * En Windows: `venv\Scripts\activate`
+
 3. Instala las dependencias necesarias:
 
    ```bash
@@ -98,26 +127,26 @@ El recolector puede desplegarse como un servicio persistente usando Docker Compo
 
 ### Características del stack
 
-| Característica | Detalle |
-|---|---|
-| Imagen base | `python:3.11-slim` (multi-arch, nativo en aarch64) |
-| Dependencias | Solo `pandas`, `requests`, `pyarrow` — sin libs de visualización |
+| Característica    | Detalle                                                      |
+| ----------------- | ------------------------------------------------------------ |
+| Imagen base       | `python:3.11-slim` (multi-arch, nativo en aarch64)           |
+| Dependencias      | Solo `pandas`, `requests`, `pyarrow` — sin libs de visualización |
 | Servicio continuo | `while True` loop — no termina, reinicia ciclos cada `TOTAL_HOURS` |
-| Persistencia | Volumen `./data:/app/data` — los `.parquet` sobreviven a recreaciones del contenedor |
-| Auto-reinicio | `restart: unless-stopped` — se levanta solo si el host se reinicia |
-| Log rotation | `max-size: 10m`, `max-file: 3` — no llena la SD |
-| Seguridad | Usuario no-root (`collector`) dentro del contenedor |
+| Persistencia      | Volumen `./data:/app/data` — los `.parquet` sobreviven a recreaciones del contenedor |
+| Auto-reinicio     | `restart: unless-stopped` — se levanta solo si el host se reinicia |
+| Log rotation      | `max-size: 10m`, `max-file: 3` — no llena la SD              |
+| Seguridad         | Usuario no-root (`collector`) dentro del contenedor          |
 
 ### Parámetros configurables
 
 Todos los parámetros del script pueden sobreescribirse con variables de entorno. Copia `env.example` como `.env` y ajusta:
 
-| Variable | Default | Descripción |
-|---|---|---|
-| `CAPTURE_INTERVAL_SEC` | `60` | Segundos entre capturas |
-| `TOTAL_HOURS` | `240` | Horas por ciclo interno (al terminar, empieza otro ciclo) |
-| `FLUSH_EVERY` | `10` | Cada cuántas capturas exitosas se escribe a disco |
-| `REQUEST_TIMEOUT_SEC` | `20` | Timeout de la request HTTP en segundos |
+| Variable               | Default | Descripción                                               |
+| ---------------------- | ------- | --------------------------------------------------------- |
+| `CAPTURE_INTERVAL_SEC` | `60`    | Segundos entre capturas                                   |
+| `TOTAL_HOURS`          | `240`   | Horas por ciclo interno (al terminar, empieza otro ciclo) |
+| `FLUSH_EVERY`          | `10`    | Cada cuántas capturas exitosas se escribe a disco         |
+| `REQUEST_TIMEOUT_SEC`  | `20`    | Timeout de la request HTTP en segundos                    |
 
 ### Despliegue
 
@@ -148,27 +177,7 @@ Con `restart: unless-stopped`, al reiniciar la Raspberry Pi Docker arranca autom
 
 ---
 
-## Visualizaciones Destacadas
 
-### 1. Trayectorias de Buses por Operador
-
-Muestra el trazado de los recorridos coloreados según la empresa operadora. Filtra coordenadas inválidas y utiliza proyección Web Mercator sobre un mapa base de OpenStreetMap.
-
-![Trayectorias de Buses](images/bus_trajectories.png)
-
-### 2. Zonas de Congestión (Hexbin Map)
-
-Agrupa los registros GPS en polígonos hexagonales para identificar visualmente las áreas geográficas con menor velocidad promedio de circulación.
-
-![Zonas de Congestión Hexbin](images/traffic_hexbin_map.png)
-
-### 3. Animación de Flota
-
-Animación temporal (timelapse) del recorrido de los buses sobre el mapa, permitiendo observar la dinámica del transporte a lo largo del tiempo.
-
-![Animación de Buses](resources/bus_animation.gif)
-
----
 
 ## Referencias
 
