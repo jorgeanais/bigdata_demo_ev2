@@ -78,11 +78,73 @@ python resources/download_data.py
 
 ### 3. Recolección de Datos en Tiempo Real
 
-Si deseas extraer nuevos datos en tiempo real desde el servicio de posicionamiento, puedes ejecutar el recolector de datos:
+Si deseas extraer nuevos datos en tiempo real desde el servicio de posicionamiento, tienes dos opciones:
+
+**Opción A — Ejecución directa con Python:**
 
 ```bash
 python resources/bus_data_collector.py
 ```
+
+**Opción B — Servicio continuo con Docker (recomendado para Raspberry Pi):**
+
+Ver la sección [Despliegue continuo con Docker](#despliegue-continuo-con-docker) para un servicio que corre indefinidamente, se reinicia automáticamente al boot, y persiste los datos en el host.
+
+---
+
+## Despliegue Continuo con Docker
+
+El recolector puede desplegarse como un servicio persistente usando Docker Compose. Esta configuración está optimizada para Raspberry Pi 5 (aarch64).
+
+### Características del stack
+
+| Característica | Detalle |
+|---|---|
+| Imagen base | `python:3.11-slim` (multi-arch, nativo en aarch64) |
+| Dependencias | Solo `pandas`, `requests`, `pyarrow` — sin libs de visualización |
+| Servicio continuo | `while True` loop — no termina, reinicia ciclos cada `TOTAL_HOURS` |
+| Persistencia | Volumen `./data:/app/data` — los `.parquet` sobreviven a recreaciones del contenedor |
+| Auto-reinicio | `restart: unless-stopped` — se levanta solo si el host se reinicia |
+| Log rotation | `max-size: 10m`, `max-file: 3` — no llena la SD |
+| Seguridad | Usuario no-root (`collector`) dentro del contenedor |
+
+### Parámetros configurables
+
+Todos los parámetros del script pueden sobreescribirse con variables de entorno. Copia `env.example` como `.env` y ajusta:
+
+| Variable | Default | Descripción |
+|---|---|---|
+| `CAPTURE_INTERVAL_SEC` | `60` | Segundos entre capturas |
+| `TOTAL_HOURS` | `240` | Horas por ciclo interno (al terminar, empieza otro ciclo) |
+| `FLUSH_EVERY` | `10` | Cada cuántas capturas exitosas se escribe a disco |
+| `REQUEST_TIMEOUT_SEC` | `20` | Timeout de la request HTTP en segundos |
+
+### Despliegue
+
+```bash
+cd ~/code/bigdata_demo_ev2
+cp .env.example .env          # opcional, ajusta si quieres
+docker compose up -d --build
+```
+
+### Verificar
+
+```bash
+docker compose ps
+docker compose logs -f bus-collector
+```
+
+### Auto-reinicio al boot
+
+Asegúrate de que Docker Engine inicie con el sistema:
+
+```bash
+sudo systemctl is-enabled docker
+# si dice "disabled":
+sudo systemctl enable docker
+```
+
+Con `restart: unless-stopped`, al reiniciar la Raspberry Pi Docker arranca automáticamente y el contenedor se reinicia solo, continuando la recolección desde donde quedó (los datos ya recolectados no se pierden, el script siempre hace append a los Parquet existentes).
 
 ---
 
